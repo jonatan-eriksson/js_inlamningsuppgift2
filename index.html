@@ -4,12 +4,91 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
     <link rel="stylesheet" href="css/style.css" />
     <script src="js/main.js"></script>
   </head>
   <body>
-    <header></header>
-    <main></main>
-    <footer></footer>
+    <header class="header">
+      <div class="container">
+        <a class="header-logo" href="#">Cityadvisor</a>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="hero">
+        <div class="container">
+          <form action="#" class="search noselect">
+            <div class="search-box">
+              <input class="search-input" type="search" name="city" id="city-input" placeholder="City" />
+              <button class="search-btn" type="submit" id="city-submit"><i class="fas fa-search"></i></button>
+            </div>
+            <div class="search-options">
+              <input class="search-opt" type="checkbox" name="city-options" id="weather" value="weather" />
+              <label class="search-label" for="weather">Weather</label>
+
+              <input class="search-opt" type="checkbox" name="city-options" id="attractions" value="attractions" />
+              <label class="search-label" for="attractions">Attractions</label>
+
+              <input class="search-opt" type="checkbox" name="city-options" id="alpha" value="alpha" />
+              <label class="search-label" for="alpha">Filter alphabetically</label>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <div class="container">
+        <section class="city-weather">
+          <div class="cards">
+            <div class="card">
+              <div class="card-content">
+                <h2 class="card-title">Monday</h2>
+                <p class="card-text">
+                  Temperature: 10 °C
+                  <br />
+                  Condition: overcast clouds
+                  <br />
+                  <i class="fas fa-cloud fa-2x"></i>
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="city-attractions">
+          <div class="cards">
+            <div class="card">
+              <div class="card-img">
+                <img class="" src="https://source.unsplash.com/random/1600x900/?attractions" alt="" />
+              </div>
+              <div class="card-content">
+                <h2 class="card-title">Title</h2>
+                <p class="card-text">Address<br />Abc<br />Stockholm</p>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-img">
+                <img class="" src="https://source.unsplash.com/random/1600x900/?city,attractions" alt="" />
+              </div>
+              <div class="card-content">
+                <h2 class="card-title">Title</h2>
+                <p class="card-text">Address<br />Abc<br />Gothenburg</p>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-img">
+                <img class="" src="https://source.unsplash.com/random/1600x900/?city,skyline" alt="" />
+              </div>
+              <div class="card-content">
+                <h2 class="card-title">Title</h2>
+                <p class="card-text">Address<br />Abc<br />City</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+    <footer class="footer"></footer>
   </body>
 </html>
