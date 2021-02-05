@@ -17,6 +17,8 @@ function onCitySearch(e) {
   const city = this.city.value;
   const url = generateUrl(weatherUrl, { q: city, units: "metric", appid: weatherKey });
   console.log(url);
+  const json = getJson(url);
+  console.log(json);
 
   e.preventDefault();
 }
@@ -27,4 +29,18 @@ function generateUrl(baseUrl, searchArgs) {
     url.searchParams.set(key, searchArgs[key]);
   }
   return url;
+}
+
+async function getJson(url = "") {
+  try {
+    const response = await fetch(url);
+    if (response.ok) {
+      return await response.json();
+    } else {
+      console.error("Status code:", response.status);
+    }
+  } catch (err) {
+    console.error("Fetch Error:", err);
+  }
+  return null;
 }
