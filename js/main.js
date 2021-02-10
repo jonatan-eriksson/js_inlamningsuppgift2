@@ -42,30 +42,13 @@ async function getJson(url = "") {
       return response.status;
     }
   } catch (err) {
-    console.error("Fetch Error:", err);
+    console.error("Fetch error:", err);
   }
   return null;
 }
 
-function getCurrentDay(timezone) {
-  let date = new Date(timezone * 1000 + Date.now());
-  const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  return weekdays[date.getUTCDay()];
-}
-
-function getCurrentTime(timezone) {
-  let date = new Date(timezone * 1000 + Date.now());
-  let hours = date.getUTCHours();
-  let minutes = date.getUTCMinutes();
-
-  hours = ("0" + hours).slice(-2);
-  minutes = ("0" + minutes).slice(-2);
-
-  return `${hours}:${minutes}`;
-}
-
 async function renderWeather(url) {
-  const container = document.querySelector("#weather .cards");
+  const container = document.querySelector(".city-weather > .cards");
   container.innerHTML = "";
 
   // Hämta data
@@ -77,33 +60,59 @@ async function renderWeather(url) {
     return;
   }
 
-  const card = createElement("div", "card");
-  const cardContent = createElement("div", "card-content");
-  const title = createElement("h2", "card-title");
-  const temp = createElement("h3", "temp");
-  const img = createElement("img");
-  const text = createElement("p", "card-text");
-
-  title.innerHTML = `${getCurrentDay(weather.timezone)} ${getCurrentTime(weather.timezone)}`;
-  temp.innerHTML = `${weather.main.temp}°C<br>`;
-  img.src = `http://openweathermap.org/img/wn/${weather.weather[0].icon}@2x.png`;
-
-  text.innerHTML += `Feels like ${weather.main.feels_like}°C<br>` + `Condition: ${weather.weather[0].description}<br>`;
-
-  append(cardContent, title);
-  append(cardContent, img);
-  append(cardContent, temp);
-  append(cardContent, text);
-  append(card, cardContent);
-  append(container, card);
+  container.append(createWeatherCard(weather));
 }
 
-function createElement(element, className = "") {
-  const newElement = document.createElement(element);
-  if (className !== "") newElement.className = className;
-  return newElement;
+function createWeatherCard(data) {
+  console.log(data);
+  const card = document.createElement("div");
+  card.className = "card";
+
+  const img = document.createElement("img");
+  // img.className = "card-img";
+
+  const cardContent = document.createElement("div");
+  cardContent.className = "card-content";
+
+  const title = document.createElement("h2");
+  const temp = document.createElement("h3");
+  temp.className = "temp";
+  const text = document.createElement("p");
+
+  title.textContent = `${getDay(data.timezone)} ${getTime(data.timezone)}`;
+  temp.textContent = `${data.main.temp}°C`;
+  text.innerHTML = `Feels like ${data.main.feels_like}°C<br>` + `Condition: ${data.weather[0].description}<br>`;
+  img.src = `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+
+  cardContent.append(title, img, temp, text);
+  card.append(cardContent);
+
+  return card;
 }
 
-function append(parent, element) {
-  return parent.append(element);
+function padDate(num) {
+  return num.toString().padStart(2, 0);
+}
+
+function getDate() {
+  let dateObj = new Date();
+  let year = dateObj.getUTCFullYear();
+  let month = padDate(dateObj.getUTCMonth());
+  let date = padDate(dateObj.getUTCDate());
+
+  return `${year}${month}${date}`;
+}
+
+function getDay(timezone) {
+  let date = new Date(timezone * 1000 + Date.now());
+  const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  return weekdays[date.getUTCDay()];
+}
+
+function getTime(timezone) {
+  let date = new Date(timezone * 1000 + Date.now());
+  let hours = padDate(date.getUTCHours());
+  let minutes = padDate(date.getUTCMinutes());
+
+  return `${hours}:${minutes}`;
 }
