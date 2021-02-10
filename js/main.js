@@ -9,18 +9,60 @@ window.addEventListener("DOMContentLoaded", onPageLoad);
 function onPageLoad() {
   const cityForm = document.querySelector("#city-form");
   cityForm.addEventListener("submit", onCitySearch);
+
+  // const weatherOption = cityForm.city_options[0];
+  // const attractionOption = cityForm.city_options[1];
+  // console.log(weatherOption);
+  // weatherOption.onchange = weatherContainer.classList.toggle("hide");
+  const weatherCb = cityForm.city_options[0];
+  const attractionCb = cityForm.city_options[1];
+
+  weatherCb.onchange = () => {
+    toggleVisibility(".city-weather");
+  };
+
+  attractionCb.onchange = () => {
+    toggleVisibility(".city-attractions");
+  };
 }
 
-function onCitySearch(e) {
-  // const citySearch = document.querySelector("#city-search").value;
+function toggleVisibility(element) {
+  const elem = document.querySelector(element);
+  elem.classList.toggle("hide");
+}
+
+async function onCitySearch(e) {
+  e.preventDefault();
   const city = this.city.value;
 
-  renderWeather(city);
-  renderAttractions(city);
+  const filterCb = this.city_options[2];
 
-  e.preventDefault();
+  let weatherData = await getWeatherData(city);
+  let attractionData = await getAttractionData(city);
+
+  if (weatherData === null || attractionData === null) {
+    errorMsg("Sorry the service is currently down, please try again later.");
+    return;
+  }
+  if (weatherData === 400 || attractionData === 400) {
+    errorMsg(`We are not sure where ${city} is. Try a different location.`);
+    return;
+  }
+
+  renderWeather(weatherData);
+  filterCb.checked ? renderAttractions(attractionData, true) : renderAttractions(attractionData, false);
 }
 
+function errorMsg(msg) {
+  document.querySelector(".city-attractions").innerHTML = "";
+  const container = document.querySelector(".city-weather > .cards");
+  container.innerHTML = "";
+  const title = document.createElement("h3");
+  title.innerHTML = msg;
+  container.append(title);
+}
+
+// Genererar en url med sökparametrar
 function generateUrl(baseUrl, searchArgs) {
   let url = new URL(baseUrl);
   for (let key in searchArgs) {
@@ -29,43 +71,41 @@ function generateUrl(baseUrl, searchArgs) {
   return url;
 }
 
-async function getJson(url = "") {
+// Hämta data från url
+async function getJson(url, searchParams) {
   try {
     const response = await fetch(url);
-    if (response.ok) {
-      return await response.json();
-    } else {
-      console.error("Status code:", response.status);
-      return response.status;
+
+    if (!response.ok) {
+      console.error("Server responded with an error, status code:", response.status);
+      return 400;
     }
+
+    return await response.json();
   } catch (err) {
     console.error("Fetch error:", err);
+    return null;
   }
-  return null;
 }
 
-async function renderWeather(city) {
-  const container = document.querySelector(".city-weather > .cards");
-  container.innerHTML = "";
-
+async function getWeatherData(city) {
   const weatherKey = config.openweatherKey;
   const url = generateUrl(weatherUrl, { q: city, units: "metric", appid: weatherKey });
 
   // Hämta data
   const weather = await getJson(url);
-  if (weather === 400) return weather.status;
-  if (weather === null) {
-    const title = createElement("h3");
-    title.textContent = "Sorry the weather service is currently down, please try again later.";
-    append(container, title);
-    return null;
-  }
+  return weather;
+}
 
-  container.append(createWeatherCard(weather));
+// Weather
+function renderWeather(weatherData) {
+  const container = document.querySelector(".city-weather > .cards");
+  container.innerHTML = "";
+
+  container.append(createWeatherCard(weatherData));
 }
 
 function createWeatherCard(data) {
-  console.log(data);
   const card = document.createElement("div");
   card.className = "card";
 
@@ -91,10 +131,9 @@ function createWeatherCard(data) {
   return card;
 }
 
-async function renderAttractions(city, sort) {
-  const container = document.querySelector(".city-attractions");
-  container.innerHTML = "";
-
+// Attractions
+// Hämta foursquare data och plocka ut viktig info i en ny array
+async function getAttractionData(city) {
   const id = config.foursquareId;
   const secret = config.foursquareSecret;
 
@@ -112,10 +151,8 @@ async function renderAttractions(city, sort) {
   // Hämta data
   const cityJson = await getJson(url);
 
-  // if (cityJson === 400) return cityJson;
-  // if (cityJson === null) return null;
+  if (cityJson === 400 || cityJson === null) return cityJson;
 
-  console.log(cityJson);
   const cityItems = cityJson.response.groups[0].items;
   let cityArr = [];
   for (let key in cityItems) {
@@ -128,18 +165,26 @@ async function renderAttractions(city, sort) {
       img: city.venue.categories[0].icon.prefix + "120" + city.venue.categories[0].icon.suffix,
     });
   }
-  sort = true;
-  if (sort === true) cityArr.sort((a, b) => a.name.localeCompare(b.name));
+  return cityArr;
+}
+
+// Lägg till atraction card i DOMen
+function renderAttractions(cityData, sort) {
+  const container = document.querySelector(".city-attractions");
+  container.innerHTML = "";
+
+  if (sort === true) cityData.sort((a, b) => a.name.localeCompare(b.name));
   // console.time("createElement");
 
   const cardGroup = document.createElement("div");
   cardGroup.className = "cards";
-  cityArr.forEach((item) => cardGroup.append(createAttractionCard(item)));
+  cityData.forEach((item) => cardGroup.append(createAttractionCard(item)));
   container.append(cardGroup);
 
   // console.timeEnd("createElement");
 }
 
+// Skapa attraction card för varje sevärdhet
 function createAttractionCard(data) {
   const card = document.createElement("div");
   card.className = "card";
@@ -163,6 +208,7 @@ function createAttractionCard(data) {
   return card;
 }
 
+// Utility
 function padDate(num) {
   return num.toString().padStart(2, 0);
 }
@@ -170,7 +216,7 @@ function padDate(num) {
 function getDate() {
   const dateObj = new Date();
   const year = dateObj.getUTCFullYear();
-  const month = padDate(dateObj.getUTCMonth());
+  const month = padDate(dateObj.getUTCMonth() + 1);
   const date = padDate(dateObj.getUTCDate());
 
   return `${year}${month}${date}`;
