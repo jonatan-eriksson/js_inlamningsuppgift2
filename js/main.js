@@ -42,6 +42,9 @@ async function onCitySearch(e) {
 
   renderWeather(weatherData);
   filterCb.checked ? renderAttractions(attractionData, true) : renderAttractions(attractionData, false);
+
+  const container = document.querySelector(".content > .container");
+  if (container.classList.contains("first-search")) container.classList.remove("first-search");
 }
 
 // Weather
@@ -54,37 +57,19 @@ async function getWeatherData(city) {
   return weather;
 }
 
-function renderWeather(weatherData) {
-  const container = document.querySelector(".city-weather > .cards");
-  container.innerHTML = "";
+function renderWeather(data) {
+  const cardContent = document.querySelector(".city-weather .card-content");
+  const title = cardContent.querySelector(".weather-title");
+  const date = cardContent.querySelector(".weather-date");
+  const img = cardContent.querySelector("img");
+  const temp = cardContent.querySelector(".temp");
+  const text = cardContent.querySelector("p");
 
-  container.append(createWeatherCard(weatherData));
-}
-
-function createWeatherCard(data) {
-  const card = document.createElement("div");
-  card.className = "card";
-
-  const img = document.createElement("img");
-  // img.className = "card-img";
-
-  const cardContent = document.createElement("div");
-  cardContent.className = "card-content";
-
-  const title = document.createElement("h2");
-  const temp = document.createElement("h3");
-  temp.className = "temp";
-  const text = document.createElement("p");
-
-  title.textContent = `${getDay(data.timezone)} ${getTime(data.timezone)}`;
-  temp.textContent = `${data.main.temp}°C`;
-  text.innerHTML = `Feels like ${data.main.feels_like}°C<br>` + `Condition ${data.weather[0].description}<br>`;
+  title.innerHTML = `<span class="card-title">${data.name}</span>`;
+  date.innerHTML = `${getDay(data.timezone)} ${getTime(data.timezone)}`;
   img.src = `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
-
-  cardContent.append(title, img, temp, text);
-  card.append(cardContent);
-
-  return card;
+  temp.textContent = `${data.main.temp}°C`;
+  text.innerHTML = `Feels like: ${data.main.feels_like}°C<br>` + `Condition: ${data.weather[0].description}<br>`;
 }
 
 // Attractions
