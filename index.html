@@ -3,16 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>CityTravel</title>
 
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
     <link rel="stylesheet" href="css/index.css" />
+    <script src="js/config.js"></script>
     <script src="js/main.js"></script>
+    <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
   </head>
   <body>
     <header class="header">
       <div class="container">
-        <a class="header-logo" href="#">Cityadvisor</a>
+        <a class="header-logo" href="/">
+          <i class="fal fa-paper-plane text-primary"></i>
+          CityTravel
+        </a>
       </div>
     </header>
 
@@ -25,31 +30,40 @@
               <button class="search-btn" type="submit" id="city-submit"><i class="fas fa-search"></i></button>
             </div>
             <div class="search-options">
-              <input class="search-opt" type="checkbox" name="city-options" id="weather" value="weather" />
+              <input class="search-opt" type="checkbox" name="city_options" id="weather" value="weather" checked />
               <label class="search-label" for="weather">Weather</label>
 
-              <input class="search-opt" type="checkbox" name="city-options" id="attractions" value="attractions" />
+              <input class="search-opt" type="checkbox" name="city_options" id="attractions" value="attractions" checked />
               <label class="search-label" for="attractions">Attractions</label>
 
-              <input class="search-opt" type="checkbox" name="city-options" id="alpha" value="alpha" />
-              <label class="search-label" for="alpha">Filter alphabetically</label>
+              <input class="search-opt" type="checkbox" name="city_options" id="alpha" value="alpha" />
+              <label class="search-label" for="alpha">Filter A - Z</label>
             </div>
           </form>
         </div>
       </section>
 
-      <div class="container">
+      <section class="error hide">
+        <h3 class="error-message">Sorry the service is currently down, please try again later.</h3>
+      </section>
+
+      <div class="container hide">
         <section class="city-weather">
           <div class="cards">
             <div class="card">
-              <div class="card-content">
-                <h2 class="card-title">Monday</h2>
-                <p class="card-text">
-                  Temperature: 10 °C
+              <div class="card-content card-content-flex">
+                <h2>
+                  <span class="weather-title">Göteborg</span><br />
+                  <span class="weather-date">Monday 20:20</span>
+                </h2>
+                <div>
+                  <img src="http://openweathermap.org/img/wn/01d@2x.png" alt="weather" />
+                  <h3 class="temp">-2°C</h3>
+                </div>
+                <p>
+                  Feels like 20°C
                   <br />
                   Condition: overcast clouds
-                  <br />
-                  <i class="fas fa-cloud fa-2x"></i>
                 </p>
               </div>
             </div>
@@ -57,35 +71,29 @@
         </section>
 
         <section class="city-attractions">
-          <div class="cards">
+          <!-- <div class="cards">
             <div class="card">
-              <div class="card-img">
-                <img class="" src="https://source.unsplash.com/random/1600x900/?attractions" alt="" />
-              </div>
+              <img class="card-img" src="https://source.unsplash.com/random/1600x900/?attractions" alt="" />
               <div class="card-content">
-                <h2 class="card-title">Title</h2>
-                <p class="card-text">Address<br />Abc<br />Stockholm</p>
+                <h2>Title</h2>
+                <p>Address<br />Abc<br />Stockholm</p>
               </div>
             </div>
             <div class="card">
-              <div class="card-img">
-                <img class="" src="https://source.unsplash.com/random/1600x900/?city,attractions" alt="" />
-              </div>
+              <img class="card-img" src="https://source.unsplash.com/random/1600x900/?city,attractions" alt="" />
               <div class="card-content">
-                <h2 class="card-title">Title</h2>
-                <p class="card-text">Address<br />Abc<br />Gothenburg</p>
+                <h2>Title</h2>
+                <p>Address<br />Abc<br />Gothenburg</p>
               </div>
             </div>
             <div class="card">
-              <div class="card-img">
-                <img class="" src="https://source.unsplash.com/random/1600x900/?city,skyline" alt="" />
-              </div>
+              <img class="card-img" src="https://source.unsplash.com/random/1600x900/?city,skyline" alt="" />
               <div class="card-content">
-                <h2 class="card-title">Title</h2>
-                <p class="card-text">Address<br />Abc<br />City</p>
+                <h2>Title</h2>
+                <p>Address<br />Abc<br />City</p>
               </div>
             </div>
-          </div>
+          </div> -->
         </section>
       </div>
     </main>
