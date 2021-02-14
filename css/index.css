@@ -130,7 +130,7 @@ section {
   align-items: center;
   height: calc(100vh - 50px);
   /* background-image: repeating-linear-gradient(0deg, #1f1f1f79, #3333333a), url(../img/2257.jpg); */
-  background-image: repeating-linear-gradient(0deg, #4444449f, #44444473), url(../img/2257.jpg);
+  background-image: repeating-linear-gradient(0deg, #4444449f, #44444473), url(../img/bg-hero.jpg);
   /* background-image: linear-gradient(0deg, rgba(0, 204, 255, 0.1), rgba(0, 204, 255, 0.1)), url(../img/cityscape.png); */
   background-attachment: fixed;
   background-position: 0, bottom 12vmin center;
