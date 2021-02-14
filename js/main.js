@@ -24,37 +24,47 @@ function onPageLoad() {
 
 async function onCitySearch(e) {
   e.preventDefault();
-  const city = this.city.value;
 
-  const filterCb = this.city_options[2];
+  const city = this.city.value;
+  if (city == null || city.length === 0) return;
+
+  const filterCheck = this.city_options[2].checked;
+  const category = this.categories.value;
 
   let weatherData = await getWeatherData(city);
-  let attractionData = await getAttractionData(city);
+  let attractionData = await getAttractionData(city, category);
 
   if (weatherData === null || attractionData === null) {
-    errorMsg("Sorry the service is currently down, please try again later.");
+    showErrorMsg("Sorry the service is currently down, please try again later.");
     return;
   }
   if (weatherData === 400 || attractionData === 400) {
-    errorMsg(`We are not sure where ${city} is. Try a different location.`);
+    showErrorMsg(`We are not sure where ${city} is. Try a different location.`);
     return;
   }
 
+  // Modifiera DOM
   renderWeather(weatherData);
-  filterCb.checked ? renderAttractions(attractionData, true) : renderAttractions(attractionData, false);
 
-  const container = document.querySelector(".content > .container");
-  if (container.classList.contains("first-search")) container.classList.remove("first-search");
+  if (filterCheck) renderAttractions(attractionData, true);
+  else renderAttractions(attractionData, false);
+
+  show(".content > .container");
+  hide(".error");
+
+  /* Scrolla ner */
+  window.location = window.location.origin + window.location.pathname + "#city";
 }
 
 // Weather
 async function getWeatherData(city) {
-  const weatherKey = config.openweatherKey;
-  const url = generateUrl(weatherUrl, { q: city, units: "metric", appid: weatherKey });
-
+  const url = generateUrl(weatherUrl, {
+    q: city,
+    units: "metric",
+    appid: config.openweatherKey,
+  });
   // Hämta data
-  const weather = await getJson(url);
-  return weather;
+  return await getJson(url);
 }
 
 function renderWeather(data) {
@@ -74,19 +84,15 @@ function renderWeather(data) {
 
 // Attractions
 // Hämta foursquare data och plocka ut viktig info i en ny array
-async function getAttractionData(city) {
-  const id = config.foursquareId;
-  const secret = config.foursquareSecret;
-
+async function getAttractionData(city, category) {
   const url = generateUrl(foursquareUrl, {
     v: getDate(),
-    client_id: id,
-    client_secret: secret,
     near: city,
-    venuePhotos: 1,
+    query: category,
     sortByPopularity: 1,
-    // query: cat,
     limit: 6,
+    client_id: config.foursquareId,
+    client_secret: config.foursquareSecret,
   });
 
   // Hämta data
@@ -107,47 +113,43 @@ async function getAttractionData(city) {
       icon: venue.categories[0].icon.prefix + "120" + venue.categories[0].icon.suffix,
     });
 
-    // Hämta en bild till varje venue
-    if (photoLimit === false) {
-      const photoUrl = generateUrl(`https://api.foursquare.com/v2/venues/${venue.id}/photos`, {
-        v: getDate(),
-        client_id: id,
-        client_secret: secret,
-      });
-      const venuePhotos = await getJson(photoUrl);
-      if (venuePhotos === 400 || venuePhotos === null) {
-        photoLimit = true;
-        continue;
-      }
+    // Hämta en bild till venue
+    if (photoLimit === true) continue;
+    const photoUrl = generateUrl(`https://api.foursquare.com/v2/venues/${venue.id}/photos`, {
+      v: getDate(),
+      client_id: id,
+      client_secret: secret,
+    });
+    const venuePhotos = await getJson(photoUrl);
+    if (venuePhotos === 400 || venuePhotos === null) {
+      photoLimit = true;
+      continue;
+    }
 
-      if (venuePhotos.response.photos.count > 0) {
-        const photo = venuePhotos.response.photos.items[0];
-        cityArr[key]["img"] = `${photo.prefix}${photo.width}x${photo.height}${photo.suffix}`;
-      }
+    if (venuePhotos.response.photos.count > 0) {
+      const photo = venuePhotos.response.photos.items[0];
+      cityArr[key]["img"] = `${photo.prefix}${photo.width}x${photo.height}${photo.suffix}`;
     }
   }
 
   return cityArr;
 }
 
-// Lägg till attraction card i DOMen
-function renderAttractions(cityData, sort) {
+// Lägger till attraction cards i DOM
+function renderAttractions(cityData, sort = false) {
   const container = document.querySelector(".city-attractions");
   container.innerHTML = "";
 
   if (sort === true) cityData.sort((a, b) => a.name.localeCompare(b.name));
-  // console.time("createElement");
 
   // Skapar alla elementen till attractions
   const cardGroup = document.createElement("div");
   cardGroup.className = "cards";
+
   cityData.forEach((item) => cardGroup.append(createAttractionCard(item)));
   container.append(cardGroup);
-
-  // console.timeEnd("createElement");
 }
 
-// Skapa attraction card för varje sevärdhet
 function createAttractionCard(data) {
   const card = document.createElement("div");
   card.className = "card";
@@ -176,10 +178,8 @@ function createAttractionCard(data) {
   return card;
 }
 
-// Utility
-
 // Genererar en url med sökparametrar
-function generateUrl(baseUrl, searchArgs) {
+function generateUrl(baseUrl, searchArgs = {}) {
   let url = new URL(baseUrl);
   for (let key in searchArgs) {
     url.searchParams.set(key, searchArgs[key]);
@@ -209,13 +209,21 @@ function toggleVisibility(element) {
   elem.classList.toggle("hide");
 }
 
-function errorMsg(msg) {
-  document.querySelector(".city-attractions").innerHTML = "";
-  const container = document.querySelector(".city-weather > .cards");
-  container.innerHTML = "";
-  const title = document.createElement("h3");
-  title.innerHTML = msg;
-  container.append(title);
+function show(element) {
+  const elem = document.querySelector(element);
+  if (elem.classList.contains("hide")) elem.classList.remove("hide");
+}
+
+function hide(element) {
+  const elem = document.querySelector(element);
+  if (!elem.classList.contains("hide")) elem.classList.add("hide");
+}
+
+function showErrorMsg(msg) {
+  hide(".content > .container");
+  const error = document.querySelector(".content > .error");
+  error.querySelector(".error-message").innerHTML = msg;
+  error.classList.remove("hide");
 }
 
 function padDate(num) {

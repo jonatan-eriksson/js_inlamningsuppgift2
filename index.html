@@ -28,16 +28,51 @@
             <div class="search-box">
               <input class="search-input" type="search" name="city" id="city-search" placeholder="City" />
               <button class="search-btn" type="submit" id="city-submit"><i class="fas fa-search"></i></button>
+
+              <div class="search-categories">
+                <input class="cat-radio" type="radio" name="categories" id="cat-1" value="" checked />
+                <label class="cat-label" for="cat-1">All</label>
+
+                <input class="cat-radio" type="radio" name="categories" id="cat-2" value="food" />
+                <label class="cat-label" for="cat-2">
+                  <i class="fas fa-utensils"></i>
+                  <span>Food</span>
+                </label>
+
+                <input class="cat-radio" type="radio" name="categories" id="cat-3" value="coffee" />
+                <label class="cat-label" for="cat-3">
+                  <i class="fas fa-coffee"></i>
+                  <span>Coffee</span>
+                </label>
+
+                <input class="cat-radio" type="radio" name="categories" id="cat-4" value="nightlife" />
+                <label class="cat-label" for="cat-4">
+                  <i class="fas fa-cocktail"></i>
+                  <span class="hide-on-mobile">Nightlife</span>
+                </label>
+
+                <input class="cat-radio" type="radio" name="categories" id="cat-5" value="fun" />
+                <label class="cat-label" for="cat-5">
+                  <i class="fas fa-theater-masks"></i>
+                  <span>Fun</span>
+                </label>
+
+                <input class="cat-radio" type="radio" name="categories" id="cat-6" value="shopping" />
+                <label class="cat-label" for="cat-6">
+                  <i class="fas fa-shopping-bag"></i>
+                  <span>Shopping</span>
+                </label>
+              </div>
             </div>
             <div class="search-options">
               <input class="search-opt" type="checkbox" name="city_options" id="weather" value="weather" checked />
-              <label class="search-label" for="weather">Weather</label>
+              <label class="options-label" for="weather">Weather</label>
 
               <input class="search-opt" type="checkbox" name="city_options" id="attractions" value="attractions" checked />
-              <label class="search-label" for="attractions">Attractions</label>
+              <label class="options-label" for="attractions">Attractions</label>
 
               <input class="search-opt" type="checkbox" name="city_options" id="alpha" value="alpha" />
-              <label class="search-label" for="alpha">Filter A - Z</label>
+              <label class="options-label" for="alpha">Filter A - Z</label>
             </div>
           </form>
         </div>
@@ -47,7 +82,7 @@
         <h3 class="error-message">Sorry the service is currently down, please try again later.</h3>
       </section>
 
-      <div class="container hide">
+      <div id="city" class="container hide">
         <section class="city-weather">
           <div class="cards">
             <div class="card">
@@ -95,8 +130,8 @@
             </div>
           </div> -->
         </section>
+        <footer class="footer"></footer>
       </div>
     </main>
-    <footer class="footer"></footer>
   </body>
 </html>
