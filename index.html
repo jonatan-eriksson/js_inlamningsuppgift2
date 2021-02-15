@@ -7,8 +7,7 @@
 
     <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
     <link rel="stylesheet" href="css/index.css" />
-    <script src="js/config.js"></script>
-    <script src="js/main.js"></script>
+    <script type="module" src="js/main.js"></script>
     <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon" />
   </head>
   <body>
@@ -71,8 +70,8 @@
               <input class="search-opt" type="checkbox" name="city_options" id="attractions" value="attractions" checked />
               <label class="options-label" for="attractions">Attractions</label>
 
-              <input class="search-opt" type="checkbox" name="city_options" id="alpha" value="alpha" />
-              <label class="options-label" for="alpha">Filter A - Z</label>
+              <input class="search-opt" type="checkbox" name="city_options" id="sort" value="sort" />
+              <label class="options-label" for="sort">Sort A - Z</label>
             </div>
           </form>
         </div>
@@ -105,32 +104,10 @@
           </div>
         </section>
 
-        <section class="city-attractions">
-          <!-- <div class="cards">
-            <div class="card">
-              <img class="card-img" src="https://source.unsplash.com/random/1600x900/?attractions" alt="" />
-              <div class="card-content">
-                <h2>Title</h2>
-                <p>Address<br />Abc<br />Stockholm</p>
-              </div>
-            </div>
-            <div class="card">
-              <img class="card-img" src="https://source.unsplash.com/random/1600x900/?city,attractions" alt="" />
-              <div class="card-content">
-                <h2>Title</h2>
-                <p>Address<br />Abc<br />Gothenburg</p>
-              </div>
-            </div>
-            <div class="card">
-              <img class="card-img" src="https://source.unsplash.com/random/1600x900/?city,skyline" alt="" />
-              <div class="card-content">
-                <h2>Title</h2>
-                <p>Address<br />Abc<br />City</p>
-              </div>
-            </div>
-          </div> -->
-        </section>
-        <footer class="footer"></footer>
+        <section class="city-attractions"></section>
+        <footer class="footer">
+          <a href="https://github.com/jonatan-eriksson/js_inlamningsuppgift2" target="_blank">Designed & Built by Jonatan Eriksson</a>
+        </footer>
       </div>
     </main>
   </body>
