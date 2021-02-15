@@ -1,5 +1,7 @@
 "use strict";
 
+import { config } from "./config.js";
+
 // api urls
 const weatherUrl = new URL("https://api.openweathermap.org/data/2.5/weather");
 const foursquareUrl = new URL("https://api.foursquare.com/v2/venues/explore");
@@ -24,50 +26,46 @@ function onPageLoad() {
 
 async function onCitySearch(e) {
   e.preventDefault();
-
-  const city = this.city.value;
-  if (city == null || city.length === 0) return;
-
-  const filterCheck = this.city_options[2].checked;
-  const category = this.categories.value;
-
-  let weatherData = await getWeatherData(city);
-  let attractionData = await getAttractionData(city, category);
-
-  if (weatherData === null || attractionData === null) {
-    showErrorMsg("Sorry the service is currently down, please try again later.");
-    return;
-  }
-  if (weatherData === 400 || attractionData === 400) {
-    showErrorMsg(`We are not sure where ${city} is. Try a different location.`);
-    return;
-  }
-
-  // Modifiera DOM
-  renderWeather(weatherData);
-
-  if (filterCheck) renderAttractions(attractionData, true);
-  else renderAttractions(attractionData, false);
-
-  show(".content > .container");
   hide(".error");
 
-  /* Scrolla ner */
-  window.location = window.location.origin + window.location.pathname + "#city";
-}
+  const city = this.city.value;
+  const weatherChecked = this.city_options[0].checked;
+  const attractionChecked = this.city_options[1].checked;
+  if (city == null || city.length === 0 || (!weatherChecked && !attractionChecked)) return hide(".content > .container");
 
-// Weather
-async function getWeatherData(city) {
-  const url = generateUrl(weatherUrl, {
+  const sort = this.city_options[2].checked;
+  const category = this.categories.value;
+
+  const weatherData = await request(weatherUrl, {
     q: city,
     units: "metric",
     appid: config.openweatherKey,
   });
-  // Hämta data
-  return await getJson(url);
+
+  const venueData = await getVenues(city, category, sort);
+
+  if (weatherData === null || venueData === null) {
+    showErrorMsg("Sorry the service is currently down, please try again later.");
+    return;
+  }
+  if (weatherData === 400 || venueData === 400) {
+    showErrorMsg(`We are not sure where ${city} is. Try a different location.`);
+    return;
+  }
+
+  renderWeather(weatherData);
+  renderVenues(venueData);
+
+  show(".content > .container");
+
+  // Scrolla ner
+  window.location = window.location.origin + window.location.pathname + "#city";
 }
 
-function renderWeather(data) {
+// Weather
+function renderWeather(city) {
+  if (city == null || city.length === 0) return;
+
   const cardContent = document.querySelector(".city-weather .card-content");
   const title = cardContent.querySelector(".weather-title");
   const date = cardContent.querySelector(".weather-date");
@@ -75,17 +73,17 @@ function renderWeather(data) {
   const temp = cardContent.querySelector(".temp");
   const text = cardContent.querySelector("p");
 
-  title.innerHTML = `<span class="card-title">${data.name}</span>`;
-  date.innerHTML = `${getDay(data.timezone)} ${getTime(data.timezone)}`;
-  img.src = `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
-  temp.textContent = `${data.main.temp}°C`;
-  text.innerHTML = `Feels like: ${data.main.feels_like}°C<br>` + `Condition: ${data.weather[0].description}<br>`;
+  title.innerHTML = `<span class="card-title">${city.name}</span>`;
+  date.innerHTML = `${getDay(city.timezone)} ${getTime(city.timezone)}`;
+  img.src = `http://openweathermap.org/img/wn/${city.weather[0].icon}@2x.png`;
+  temp.textContent = `${city.main.temp}°C`;
+  text.innerHTML = `Feels like: ${city.main.feels_like}°C<br>` + `Condition: ${city.weather[0].description}<br>`;
 }
 
 // Attractions
 // Hämta foursquare data och plocka ut viktig info i en ny array
-async function getAttractionData(city, category) {
-  const url = generateUrl(foursquareUrl, {
+async function getVenues(city, category, sort = false) {
+  const data = await request(foursquareUrl, {
     v: getDate(),
     near: city,
     query: category,
@@ -95,17 +93,16 @@ async function getAttractionData(city, category) {
     client_secret: config.foursquareSecret,
   });
 
-  // Hämta data
-  const cityJson = await getJson(url);
-  if (cityJson === 400 || cityJson === null) return cityJson;
-  const cityItems = cityJson.response.groups[0].items;
+  if (data === 400 || data == null) return data;
 
-  let cityArr = [];
+  const venues = data.response.groups[0].items;
+
+  let venuesArr = [];
   let photoLimit = false;
 
-  for (let key in cityItems) {
-    const venue = cityItems[key].venue;
-    cityArr.push({
+  for (let key in venues) {
+    const venue = venues[key].venue;
+    venuesArr.push({
       id: venue.id,
       name: venue.name,
       address: venue.location.formattedAddress,
@@ -115,13 +112,13 @@ async function getAttractionData(city, category) {
 
     // Hämta en bild till venue
     if (photoLimit === true) continue;
-    const photoUrl = generateUrl(`https://api.foursquare.com/v2/venues/${venue.id}/photos`, {
+    const venuePhotos = await request(`https://api.foursquare.com/v2/venues/${venue.id}/photos`, {
       v: getDate(),
-      client_id: id,
-      client_secret: secret,
+      client_id: config.foursquareId,
+      client_secret: config.foursquareSecret,
     });
-    const venuePhotos = await getJson(photoUrl);
-    if (venuePhotos === 400 || venuePhotos === null) {
+
+    if (venuePhotos === 400 || venuePhotos == null) {
       photoLimit = true;
       continue;
     }
@@ -131,26 +128,27 @@ async function getAttractionData(city, category) {
       cityArr[key]["img"] = `${photo.prefix}${photo.width}x${photo.height}${photo.suffix}`;
     }
   }
-
-  return cityArr;
+  if (sort === true) venuesArr.sort((a, b) => a.name.localeCompare(b.name));
+  return venuesArr;
 }
 
-// Lägger till attraction cards i DOM
-function renderAttractions(cityData, sort = false) {
+// Lägger till venue cards i DOM
+function renderVenues(venues) {
+  if (venues == null || venues.length === 0) return;
+
   const container = document.querySelector(".city-attractions");
   container.innerHTML = "";
-
-  if (sort === true) cityData.sort((a, b) => a.name.localeCompare(b.name));
 
   // Skapar alla elementen till attractions
   const cardGroup = document.createElement("div");
   cardGroup.className = "cards";
 
-  cityData.forEach((item) => cardGroup.append(createAttractionCard(item)));
+  venues.forEach((item) => cardGroup.append(createVenueCard(item)));
+
   container.append(cardGroup);
 }
 
-function createAttractionCard(data) {
+function createVenueCard(data) {
   const card = document.createElement("div");
   card.className = "card";
 
@@ -179,16 +177,17 @@ function createAttractionCard(data) {
 }
 
 // Genererar en url med sökparametrar
-function generateUrl(baseUrl, searchArgs = {}) {
+function generateUrl(baseUrl, searchParams = {}) {
   let url = new URL(baseUrl);
-  for (let key in searchArgs) {
-    url.searchParams.set(key, searchArgs[key]);
+  for (let key in searchParams) {
+    url.searchParams.set(key, searchParams[key]);
   }
   return url;
 }
 
-// Hämta data från api
-async function getJson(url) {
+// Hämtar data från api
+async function request(baseUrl, searchParams = {}) {
+  const url = generateUrl(baseUrl, searchParams);
   try {
     const response = await fetch(url);
 
