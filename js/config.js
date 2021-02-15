@@ -1,0 +1,5 @@
+export const config = {
+  openweatherKey: "76e9b5b9a049c65adf5da988bd95fa83",
+  foursquareId: "SJAEUNDDYNVNPQLZO33HT0XMHL3KVNMCLI43DT02SO3XO1XQ",
+  foursquareSecret: "EIDWJC2T03GLZN2WUCZS0YRDYTGRWAPFQEUEIBW2UHAQHYJW",
+};
