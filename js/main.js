@@ -36,12 +36,14 @@ async function onCitySearch(e) {
   const sort = this.city_options[2].checked;
   const category = this.categories.value;
 
+  // Hämta data från väder-api
   const weatherData = await request(weatherUrl, {
     q: city,
     units: "metric",
     appid: config.openweatherKey,
   });
 
+  // Hämta data från foursquare-api
   const venueData = await getVenues(city, category, sort);
 
   if (weatherData === null || venueData === null) {
@@ -53,16 +55,49 @@ async function onCitySearch(e) {
     return;
   }
 
+  // Skriv ut data i DOMen
   renderWeather(weatherData);
   renderVenues(venueData);
 
   show(".content > .container");
 
-  // Scrolla ner
+  // Scrolla ner till #city
   window.location = window.location.origin + window.location.pathname + "#city";
 }
 
+// Genererar en url med sökparametrar
+function generateUrl(baseUrl, searchParams = {}) {
+  let url = new URL(baseUrl);
+  for (let key in searchParams) {
+    url.searchParams.set(key, searchParams[key]);
+  }
+  return url;
+}
+
+// Ansvarar för kommunikationen med servern för att hämta data, skicka in en url och sökparameter
+// async/await pausar funktionen och gör annat under tiden den väntar på svar
+async function request(baseUrl, searchParams = {}) {
+  const url = generateUrl(baseUrl, searchParams);
+  try {
+    // Kallar på servern och väntar på svar
+    const response = await fetch(url);
+
+    // Om servern fick problem returnera error
+    if (!response.ok) {
+      console.error("Server responded with an error, status code:", response.status);
+      return 400;
+    }
+
+    // Om ok returnera svaret i json-format
+    return await response.json();
+  } catch (err) {
+    console.error("Fetch error:", err);
+    return null;
+  }
+}
+
 // Weather
+// Modifera väderkortet
 function renderWeather(city) {
   if (city == null || city.length === 0) return;
 
@@ -83,6 +118,7 @@ function renderWeather(city) {
 // Attractions
 // Hämta foursquare data och plocka ut viktig info i en ny array
 async function getVenues(city, category, sort = false) {
+  // Kallar på servern och väntar på svar
   const data = await request(foursquareUrl, {
     v: getDate(),
     near: city,
@@ -100,6 +136,7 @@ async function getVenues(city, category, sort = false) {
   let venuesArr = [];
   let photoLimit = false;
 
+  // Går igenom alla venues och plockar ut viktig info
   for (let key in venues) {
     const venue = venues[key].venue;
     venuesArr.push({
@@ -132,7 +169,7 @@ async function getVenues(city, category, sort = false) {
   return venuesArr;
 }
 
-// Lägger till venue cards i DOM
+// Lägger till venuekort i DOMen
 function renderVenues(venues) {
   if (venues == null || venues.length === 0) return;
 
@@ -176,33 +213,7 @@ function createVenueCard(data) {
   return card;
 }
 
-// Genererar en url med sökparametrar
-function generateUrl(baseUrl, searchParams = {}) {
-  let url = new URL(baseUrl);
-  for (let key in searchParams) {
-    url.searchParams.set(key, searchParams[key]);
-  }
-  return url;
-}
-
-// Hämtar data från api
-async function request(baseUrl, searchParams = {}) {
-  const url = generateUrl(baseUrl, searchParams);
-  try {
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      console.error("Server responded with an error, status code:", response.status);
-      return 400;
-    }
-
-    return await response.json();
-  } catch (err) {
-    console.error("Fetch error:", err);
-    return null;
-  }
-}
-
+// Utility
 function toggleVisibility(element) {
   const elem = document.querySelector(element);
   elem.classList.toggle("hide");
