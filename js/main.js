@@ -162,7 +162,7 @@ async function getVenues(city, category, sort = false) {
 
     if (venuePhotos.response.photos.count > 0) {
       const photo = venuePhotos.response.photos.items[0];
-      cityArr[key]["img"] = `${photo.prefix}${photo.width}x${photo.height}${photo.suffix}`;
+      venuesArr[key]["img"] = `${photo.prefix}${photo.width}x${photo.height}${photo.suffix}`;
     }
   }
   if (sort === true) venuesArr.sort((a, b) => a.name.localeCompare(b.name));
